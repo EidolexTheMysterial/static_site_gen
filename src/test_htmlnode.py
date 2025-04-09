@@ -95,3 +95,7 @@ class TestNodeConversion(unittest.TestCase):
         self.assertEqual(html_node.value, "This is a test link")
 
         self.assertEqual(html_node.to_html(), '<a href="https://microsoft.com">This is a test link</a>')
+
+
+if __name__ == "__main__":
+    unittest.main()
