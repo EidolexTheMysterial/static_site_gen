@@ -167,7 +167,7 @@ def markdown_to_html_node(markdown):
             case BlockType.HEAD_TYP:
                 tag = get_header_tag(b)
 
-        if sub_blocks !== None:
+        if sub_blocks != None:
             nd_lst.extend(sub_blocks)
         else:
             nd_lst.append(HtmlNode(tag, val))
