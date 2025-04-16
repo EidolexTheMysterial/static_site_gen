@@ -9,11 +9,11 @@ class BlockType(Enum):
     UNORD_TYP = "unordered list"
     ORD_TYP = "ordered list"
 
-rxHeading = r"^#{,6} .+"
-rxCode = r"^```[\w\W]+```$"
-rxQuote = r"^>.+$"
-rxUnordered = r"^- "
-rxOrdered = r"^\d+\. "
+rxHeading = r"^#{,6} (.+)"
+rxCode = r"^```([\w\W]+)```$"
+rxQuote = r"^>(.+)$"
+rxUnordered = r"^- (.+)"
+rxOrdered = r"^\d+\. (.+)"
 
 
 def block_to_block_type(block):
@@ -32,3 +32,30 @@ def block_to_block_type(block):
             return BlockType.ORD_TYP
         else:
             return BlockType.PARA_TYP
+
+def get_block_val(block):
+    typ = block_to_block_type(block)
+    rx = None
+
+    match(typ):
+        case BlockType.HEAD_TYP:
+            rx = rxHeading
+
+        case BlockType.CODE_TYP:
+            rx = rxCode
+
+        case BlockType.QUOTE_TYP:
+            rx = rxQuote
+
+        case BlockType.UNORD_TYP:
+            rx = rxUnordered
+
+        case BlockType.ORD_TYP:
+            rx = rxOrdered
+
+        case _:
+            return block
+
+    m = re.match(rx, block)
+
+    return m.group(1)

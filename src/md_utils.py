@@ -1,8 +1,13 @@
 import re
-from textnode import TextType, TextNode
+
+from textnode import TextType, TextNode, text_node_to_html_node
+from htmlnode import HtmlNode, LeafNode, ParentNode
+from blocktype import BlockType, block_to_block_type
 
 rxMdImages = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
 rxMdLinks = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+
+rxHeadStart = r"^#{,6}"
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_lst = []
@@ -137,3 +142,34 @@ def markdown_to_blocks(markdown):
             new_lst.append(b)
 
     return new_lst
+
+
+# Conversion helpers
+
+def get_header_tag(str):
+    filt_str = re.match(rxHeadStart, str)
+
+    return f"h{len(filt_str)}"
+
+
+def markdown_to_html_node(markdown):
+    nd_lst = []
+    blocks = markdown_to_blocks(markdown)
+
+    for b in blocks:
+        tag = ""
+        val = ""
+        props = None
+
+        sub_blocks = None
+
+        match(block_to_block_type(b)):
+            case BlockType.HEAD_TYP:
+                tag = get_header_tag(b)
+
+        if sub_blocks !== None:
+            nd_lst.extend(sub_blocks)
+        else:
+            nd_lst.append(HtmlNode(tag, val))
+
+    return nd_lst
