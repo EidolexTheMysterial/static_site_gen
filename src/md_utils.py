@@ -2,7 +2,7 @@ import re
 
 from textnode import TextType, TextNode, text_node_to_html_node
 from htmlnode import HtmlNode, LeafNode, ParentNode
-from blocktype import BlockType, block_to_block_type
+from blocktype import BlockType, block_to_block_type, get_block_val
 
 rxMdImages = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
 rxMdLinks = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
@@ -119,23 +119,23 @@ def split_nodes_link(old_nodes):
 
 # text to text_nodes
 def text_to_textnodes(text):
-    current_lst = split_nodes_image([ TextNode(text, TextType.NORMAL_TYP) ])
+    nd_lst = split_nodes_image([ TextNode(text, TextType.NORMAL_TYP) ])
 
-    current_lst = split_nodes_link(current_lst)
+    nd_lst = split_nodes_link(nd_lst)
 
-    current_lst = split_nodes_delimiter(current_lst, "**", TextType.BOLD_TYP)
-    current_lst = split_nodes_delimiter(current_lst, "_", TextType.ITALIC_TYP)
-    current_lst = split_nodes_delimiter(current_lst, "`", TextType.CODE_TYP)
+    nd_lst = split_nodes_delimiter(nd_lst, "**", TextType.BOLD_TYP)
+    nd_lst = split_nodes_delimiter(nd_lst, "_", TextType.ITALIC_TYP)
+    nd_lst = split_nodes_delimiter(nd_lst, "`", TextType.CODE_TYP)
 
-    return current_lst
+    return nd_lst
 
 # split md into list of non-empty blocks
 def markdown_to_blocks(markdown):
     new_lst = []
 
-    txt_blocks = markdown.split("\n\n")
+    blocks = markdown.split("\n\n")
 
-    for b in txt_blocks:
+    for b in blocks:
         b = b.strip()
 
         if len(b) > 0:
@@ -146,30 +146,72 @@ def markdown_to_blocks(markdown):
 
 # Conversion helpers
 
+# return "h[1-6]" based on the number of #s at the start
 def get_header_tag(str):
     filt_str = re.match(rxHeadStart, str)
 
     return f"h{len(filt_str)}"
 
 
+def handle_list_typ(typ, block):
+    tag = "ul" if typ == BlockType.UNORD_TYP else "ol"
+
+    inline_nds = []
+
+    for ln in block.split("\n"):
+        val = get_block_val(ln)
+
+        inline_nds.append(LeafNode("li", val))
+
+    return ParentNode(tag, inline_nds)
+
+
+def text_to_children(text):
+    text = text.replace("\n", " ")
+
+    txt_nds = text_to_textnodes(text)
+
+    html_nds = list(map(lambda nd: text_node_to_html_node(nd), txt_nds))
+
+    return html_nds
+
 def markdown_to_html_node(markdown):
     nd_lst = []
     blocks = markdown_to_blocks(markdown)
 
     for b in blocks:
-        tag = ""
-        val = ""
-        props = None
+        child_nd = None
 
-        sub_blocks = None
-
-        match(block_to_block_type(b)):
+        match block_to_block_type(b):
             case BlockType.HEAD_TYP:
                 tag = get_header_tag(b)
+                val = get_block_val(b)
 
-        if sub_blocks != None:
-            nd_lst.extend(sub_blocks)
-        else:
-            nd_lst.append(HtmlNode(tag, val))
+                child_nd = ParentNode(tag, text_to_children(val))
 
-    return nd_lst
+            case BlockType.CODE_TYP:
+                val = get_block_val(b)
+
+                nd = TextNode(val, TextType.CODE_TYP)
+
+                child_nd = ParentNode("pre", [ text_node_to_html_node(nd) ])
+
+            case BlockType.QUOTE_TYP:
+                val = get_block_val(b)
+
+                child_nd = ParentNode("blockquote", text_to_children(val))
+
+            case BlockType.PARA_TYP:
+                val = get_block_val(b)
+
+                child_nd = ParentNode("p", text_to_children(val))
+
+            case BlockType.UNORD_TYP:
+                child_nd = handle_list_typ(BlockType.UNORD_TYP, b)
+
+            case BlockType.ORD_TYP:
+                child_nd = handle_list_typ(BlockType.ORD_TYP, b)
+
+        nd_lst.append(child_nd)
+
+    return ParentNode("div", nd_lst)

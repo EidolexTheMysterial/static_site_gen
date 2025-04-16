@@ -8,6 +8,7 @@ from md_utils import (
     split_nodes_link,
     text_to_textnodes,
     markdown_to_blocks,
+    markdown_to_html_node,
 )
 
 from textnode import TextNode, TextType
@@ -207,4 +208,89 @@ This is the same paragraph on a new line
                 "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
                 "- This is a list\n- with items",
             ],
+        )
+
+
+class TestMDToHtml(unittest.TestCase):
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
+
+    def test_blockquote(self):
+        md = """
+>this is some text
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>this is some text</blockquote></div>",
+        )
+
+        md = """
+>this is some text,
+>and some more
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>this is some text, and some more</blockquote></div>",
+        )
+
+    def test_unord_list(self):
+        md = """
+- this is an item
+- this is another item
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>this is an item</li><li>this is another item</li></ul></div>",
+        )
+
+    def test_ord_list(self):
+        md = """
+1. this is an item
+2. this is another item
+3. and yet another item
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>this is an item</li><li>this is another item</li><li>and yet another item</li></ol></div>",
         )

@@ -19,25 +19,32 @@ rxOrdered = r"^\d+\. (.+)"
 def block_to_block_type(block):
     if re.match(rxHeading, block):
         return BlockType.HEAD_TYP
+
     elif re.match(rxCode, block):
         return BlockType.CODE_TYP
+
     else:
         lines = block.split("\n")
 
         if all(map(lambda ln: re.match(rxQuote, ln), lines)):
             return BlockType.QUOTE_TYP
+
         elif all(map(lambda ln: re.match(rxUnordered, ln), lines)):
             return BlockType.UNORD_TYP
+
         elif all(map(lambda ln: re.match(rxOrdered, ln), lines)):
             return BlockType.ORD_TYP
+
         else:
             return BlockType.PARA_TYP
 
+
 def get_block_val(block):
     typ = block_to_block_type(block)
+
     rx = None
 
-    match(typ):
+    match typ:
         case BlockType.HEAD_TYP:
             rx = rxHeading
 
@@ -45,7 +52,11 @@ def get_block_val(block):
             rx = rxCode
 
         case BlockType.QUOTE_TYP:
-            rx = rxQuote
+            lines = block.split("\n")
+
+            return " ".join(
+                map(lambda ln: re.match(rxQuote, ln).group(1), lines)
+            )
 
         case BlockType.UNORD_TYP:
             rx = rxUnordered
@@ -53,9 +64,10 @@ def get_block_val(block):
         case BlockType.ORD_TYP:
             rx = rxOrdered
 
+        # PARA_TYP, all others
         case _:
             return block
 
     m = re.match(rx, block)
 
-    return m.group(1)
+    return m.group(1).lstrip()
