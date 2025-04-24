@@ -294,3 +294,7 @@ the **same** even with inline stuff
             html,
             "<div><ol><li>this is an item</li><li>this is another item</li><li>and yet another item</li></ol></div>",
         )
+
+
+if __name__ == "__main__":
+    unittest.main()
