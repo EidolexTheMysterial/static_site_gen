@@ -9,9 +9,11 @@ class BlockType(Enum):
     UNORD_TYP = "unordered list"
     ORD_TYP = "ordered list"
 
-rxHeading = r"^#{,6} (.+)"
+rxTtlHeader = r"^# (.+)$"
+
+rxHeading = r"^#{,6} (.+)$"
 rxCode = r"^```([\w\W]+)```$"
-rxQuote = r"^>(.+)$"
+rxQuote = r"^>(.*)"
 rxUnordered = r"^- (.+)"
 rxOrdered = r"^\d+\. (.+)"
 
@@ -55,7 +57,7 @@ def get_block_val(block):
             lines = block.split("\n")
 
             return " ".join(
-                map(lambda ln: re.match(rxQuote, ln).group(1), lines)
+                map(lambda ln: re.match(rxQuote, ln).group(1).strip(), lines)
             )
 
         case BlockType.UNORD_TYP:
@@ -71,3 +73,13 @@ def get_block_val(block):
     m = re.match(rx, block)
 
     return m.group(1).lstrip()
+
+
+def extract_title(md):
+    for ln in md.split("\n"):
+        m = re.match(rxTtlHeader, ln)
+
+        if m:
+            return get_block_val(ln)
+
+    raise Exception("Title header not fond")

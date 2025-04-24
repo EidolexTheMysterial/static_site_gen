@@ -222,11 +222,22 @@ This is another paragraph with _italic_ text and `code` here
 
 """
 
+    def test_headers(self):
+        md = """
+# this is an h1
+
+## this is an h2
+
+### this is an h3
+
+####### this is not a header
+"""
+
         node = markdown_to_html_node(md)
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+            "<div><h1>this is an h1</h1><h2>this is an h2</h2><h3>this is an h3</h3><p>####### this is not a header</p></div>",
         )
 
     def test_codeblock(self):
@@ -244,6 +255,7 @@ the **same** even with inline stuff
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
 
+
     def test_blockquote(self):
         md = """
 >this is some text
@@ -257,16 +269,32 @@ the **same** even with inline stuff
         )
 
         md = """
+a single para
+
 >this is some text,
->and some more
+> and some more
 """
 
         node = markdown_to_html_node(md)
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><blockquote>this is some text, and some more</blockquote></div>",
+            "<div><p>a single para</p><blockquote>this is some text, and some more</blockquote></div>",
         )
+
+        md = """
+>line 1
+>
+>_line 3_
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>line 1  <i>line 3</i></blockquote></div>",
+        )
+
 
     def test_unord_list(self):
         md = """
@@ -293,6 +321,19 @@ the **same** even with inline stuff
         self.assertEqual(
             html,
             "<div><ol><li>this is an item</li><li>this is another item</li><li>and yet another item</li></ol></div>",
+        )
+
+        md = """
+1. this is an **item**
+2. this is another item
+3. and yet another item
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>this is an <b>item</b></li><li>this is another item</li><li>and yet another item</li></ol></div>",
         )
 
 

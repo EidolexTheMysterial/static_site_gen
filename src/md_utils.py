@@ -148,9 +148,9 @@ def markdown_to_blocks(markdown):
 
 # return "h[1-6]" based on the number of #s at the start
 def get_header_tag(str):
-    filt_str = re.match(rxHeadStart, str)
+    m = re.match(rxHeadStart, str)
 
-    return f"h{len(filt_str)}"
+    return f"h{len(m[0])}"
 
 
 def handle_list_typ(typ, block):
@@ -161,7 +161,9 @@ def handle_list_typ(typ, block):
     for ln in block.split("\n"):
         val = get_block_val(ln)
 
-        inline_nds.append(LeafNode("li", val))
+        nd_lst = text_to_children(val)
+
+        inline_nds.append(ParentNode("li", nd_lst))
 
     return ParentNode(tag, inline_nds)
 
@@ -174,6 +176,7 @@ def text_to_children(text):
     html_nds = list(map(lambda nd: text_node_to_html_node(nd), txt_nds))
 
     return html_nds
+
 
 def markdown_to_html_node(markdown):
     nd_lst = []

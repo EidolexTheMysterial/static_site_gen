@@ -1,15 +1,18 @@
-from textnode import TextType, TextNode
-
-from md_utils import (
-    split_nodes_delimiter,
-    extract_markdown_links,
-    extract_markdown_images,
-    split_nodes_image,
-    split_nodes_link,
+from file_ops import (
+    start_file_ops,
+    start_gen_ops,
 )
 
 
 def main():
+    print(f"\n**[ starting static_site_gen ]**\n")
+
+    start_file_ops()
+
+    start_gen_ops()
+
+
+
     # new_tn = TextNode("my simple test", "link", "http://somesite.org")
 
     # print(new_tn)
@@ -25,10 +28,10 @@ def main():
     #     TextType.NORMAL_TYP,
     # )
 
-    node = TextNode("", TextType.NORMAL_TYP)
+    # node = TextNode("", TextType.NORMAL_TYP)
 
-    new_nodes = split_nodes_link([node])
+    # new_nodes = split_nodes_link([node])
 
-    print(new_nodes)
+    # print(new_nodes)
 
 main()

@@ -1,6 +1,11 @@
 import unittest
 
-from blocktype import BlockType, block_to_block_type
+from blocktype import (
+    BlockType,
+    block_to_block_type,
+    extract_title,
+)
+
 
 # Block Node tests
 class BlockTypeTests(unittest.TestCase):
@@ -87,6 +92,28 @@ some code
         block_type = block_to_block_type(str)
 
         self.assertEqual(block_type, BlockType.PARA_TYP)
+
+    def test_extract_title(self):
+        md = """# My Title
+
+## some other header
+"""
+
+        main_ttl = extract_title(md)
+
+        self.assertEqual(main_ttl, "My Title")
+
+        md = """
+
+# This is the main header
+
+rest of the markdown
+
+"""
+
+        main_ttl = extract_title(md)
+
+        self.assertEqual(main_ttl, "This is the main header")
 
 
 if __name__ == "__main__":
