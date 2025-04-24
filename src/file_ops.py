@@ -18,13 +18,6 @@ public_path = "./public"
 ignore_files = [ ".DS_Store" ]
 
 
-def chk_dir(path):
-    exists = os.path.exists(path)
-    isfile = os.path.isfile(path)
-    # print(f"[ exists: {exists} | isfile: {isfile} | return: {exists and not isfile} ]")
-
-    return exists and not isfile
-
 def rmv_dir(path):
     print(f"\n[ removing dir: '{path}/' ]")
 
@@ -37,7 +30,7 @@ def add_dir(path):
 
 
 def list_dir(path):
-    if not chk_dir(path):
+    if not os.path.isdir(path):
         print(f"[ path not found: '{path}/' ]\n")
         raise ValueError("invalid path")
 
@@ -51,8 +44,8 @@ def cpy_path(src_path, dest_path):
         print(f"\n[ path does not exist: '{src_path}' ]")
         raise ValueError("invalid path")
 
-    if chk_dir(src_path):
-        if not chk_dir(dest_path):
+    if os.path.isdir(src_path):
+        if not os.path.isdir(dest_path):
             add_dir(dest_path)
 
         contents = list_dir(src_path)
@@ -78,7 +71,7 @@ def start_file_ops():
 
     print("\n[ checking for 'public/' ]")
 
-    public_exists = chk_dir("public")
+    public_exists = os.path.isdir("public")
 
     if public_exists:
         rmv_dir("public")
@@ -160,8 +153,8 @@ def gen_path(src_path):
     if os.path.isfile(src_path):
         dest_path = dest_path.replace(".md", ".html")
 
-    if chk_dir(src_path):
-        if src_path != content_path and not chk_dir(dest_path):
+    if os.path.isdir(src_path):
+        if src_path != content_path and not os.path.isdir(dest_path):
             add_dir(dest_path)
 
         contents = list_dir(src_path)
