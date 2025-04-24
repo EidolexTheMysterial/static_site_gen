@@ -150,9 +150,6 @@ def gen_path(src_path):
     dest_path = os.path.join(public_path, src_path)
     dest_path = dest_path.replace(content_path + "/", "")
 
-    if os.path.isfile(src_path):
-        dest_path = dest_path.replace(".md", ".html")
-
     if os.path.isdir(src_path):
         if src_path != content_path and not os.path.isdir(dest_path):
             add_dir(dest_path)
@@ -169,12 +166,14 @@ def gen_path(src_path):
                 print(f"[ ignoring file: '{f}' ]\n")
 
     elif src_path.endswith(".md"):
+        dest_path = dest_path.replace(".md", ".html")
+
         # print(f"[ gen'ing '{src_path}' to '{dest_path}' ]")
 
         generate_page(src_path, tmpl_file, dest_path)
 
     else:
-        print(f"\n[ skipping: {dest_path} ]\n")
+        print(f"\n[ skipping: {src_path} ]\n")
 
 
 def start_gen_ops():
