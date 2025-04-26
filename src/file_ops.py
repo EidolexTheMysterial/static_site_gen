@@ -1,5 +1,4 @@
-import os
-import shutil
+import re, os, shutil
 
 from md_utils import (
     markdown_to_html_node,
@@ -11,11 +10,19 @@ from blocktype import (
 
 
 # globals
-tmpl_file = "./template.html"
+base_path = "/"
+
+static_path = "./static"
 content_path = "./content"
-public_path = "./public"
+public_path = "./docs"
+
+tmpl_file = "./template.html"
+
 
 ignore_files = [ ".DS_Store" ]
+
+
+rxHtmlPath = r'(href|src)="/'
 
 
 def rmv_dir(path):
@@ -69,18 +76,19 @@ def cpy_path(src_path, dest_path):
 def start_file_ops():
     print("\n\n*[ starting file ops ]*\n")
 
-    print("\n[ checking for 'public/' ]")
+    print(f"\n[ checking for '{public_path}/' ]")
 
-    public_exists = os.path.isdir("public")
+    public_exists = os.path.isdir(public_path)
 
     if public_exists:
-        rmv_dir("public")
+        rmv_dir(public_path)
+
     else:
-        print("[ 'public/' does not exist ]\n")
+        print(f"[ '{public_path}/' does not exist ]\n")
 
-    print("\n\n[ copying 'static/*' to 'public/*' ]:\n")
+    print(f"\n\n[ copying '{static_path}/*' to '{public_path}/*' ]:\n")
 
-    cpy_path("static", "public")
+    cpy_path(static_path, public_path)
 
 
 def get_contents(path):
@@ -132,6 +140,11 @@ def generate_page(from_path, template_path, dest_path):
     new_html = repl_tag("Title", page_ttl, tmpl)
     new_html = repl_tag("Content", html, new_html)
 
+    new_html = re.sub(rxHtmlPath, rf'\1="{base_path}', new_html)
+
+    # new_html = new_html.replace('href="/', f'href="{base_path}')
+    # new_html = new_html.replace('src="/', f'src="{base_path}')
+
     # print(new_html)
 
     dest_dir = os.path.dirname(dest_path)
@@ -176,7 +189,12 @@ def gen_path(src_path):
         print(f"\n[ skipping: {src_path} ]\n")
 
 
-def start_gen_ops():
+def start_gen_ops(out_path):
+    global base_path
+
+    if out_path != base_path:
+        base_path = out_path
+
     print("\n\n*[ starting gen ops ]*\n")
 
     gen_path(content_path)
