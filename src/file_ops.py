@@ -112,7 +112,7 @@ def write_contents(path, contents):
 
     file = open(path, "w")
 
-    contents = file.write(contents)
+    file.write(contents)
 
     file.close()
 
