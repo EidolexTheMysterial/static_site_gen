@@ -161,7 +161,7 @@ def gen_path(src_path):
         raise ValueError("invalid path")
 
     dest_path = os.path.join(public_path, src_path)
-    dest_path = dest_path.replace(content_path + "/", "")
+    dest_path = dest_path.replace(f"{content_path}/", "")
 
     if os.path.isdir(src_path):
         if src_path != content_path and not os.path.isdir(dest_path):
@@ -209,4 +209,3 @@ def start_gen_ops(out_path):
     # generate_page("content/blog/majesty/index.md", "template.html", "public/blog/majesty/index.html")
 
     # generate_page("content/blog/tom/index.md", "template.html", "public/blog/tom/index.html")
-
